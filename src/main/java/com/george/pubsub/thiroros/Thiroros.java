@@ -1,7 +1,9 @@
 package com.george.pubsub.thiroros;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.george.pubsub.remote.RemoteAddress;
+import com.george.pubsub.thiroros.service.impl.ThirorosImpl;
+import com.george.pubsub.thiroros.util.DistributedNode;
+import com.george.pubsub.thiroros.util.RemoteAddress;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -9,7 +11,6 @@ import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -23,6 +24,7 @@ public class Thiroros {
     private ObjectMapper mapper;
     private ServerSocket server;
     private ExecutorService executor;
+    private com.george.pubsub.thiroros.service.Thiroros thiroros = new ThirorosImpl();
 
     public Thiroros() {}
 
@@ -63,18 +65,14 @@ public class Thiroros {
                             System.out.println(bufferedReader.read(buf,0, len));
                             line = String.copyValueOf(buf);
                         }
-                        if (type.equals("register")) {
-                            System.out.println(line);
-                            RemoteAddress remoteBroker =  mapper.readValue(line, RemoteAddress.class);
-                            remoteBrokers.add(remoteBroker);
-                            client.getOutputStream().write(("HTTP/1.1 200 OK\n\n" + mapper.writeValueAsString(remoteBrokers) + "\n").getBytes("UTF-8"));
-                        } else if (type.equals("unregister")) {
-                            System.out.println(line);
-                            RemoteAddress remoteBroker =  mapper.readValue(line, RemoteAddress.class);
-                            remoteBrokers.remove(remoteBroker);
-                            client.getOutputStream().write("HTTP/1.1 200 OK\n\n".getBytes("UTF-8"));
+                        if (type.equals("leave")) {
+                            DistributedNode distributedNode =  mapper.readValue(line, DistributedNode.class);
+                            client.getOutputStream().write(("HTTP/1.1 200 OK\n\n" + thiroros.leave(distributedNode)).getBytes("UTF-8"));
+                        } else if (type.equals("join")) {
+                            DistributedNode distributedNode =  mapper.readValue(line, DistributedNode.class);
+                            client.getOutputStream().write(("HTTP/1.1 200 OK\n\n" + mapper.writeValueAsString(thiroros.join(distributedNode))).getBytes("UTF-8"));
                         } else if (type.equals("update")) {
-                            client.getOutputStream().write(("HTTP/1.1 200 OK\n\n" + mapper.writeValueAsString(remoteBrokers) + "\n").getBytes("UTF-8"));
+                            client.getOutputStream().write(("HTTP/1.1 200 OK\n\n" + mapper.writeValueAsString(thiroros.update())).getBytes("UTF-8"));
                         } else {
                             client.getOutputStream().write("HTTP/1.1 404 Not Found\n\n".getBytes("UTF-8"));
                         }
