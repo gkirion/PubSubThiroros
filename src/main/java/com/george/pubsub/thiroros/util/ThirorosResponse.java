@@ -1,14 +1,22 @@
 package com.george.pubsub.thiroros.util;
 
-import java.util.List;
 import java.util.Objects;
 
 public class ThirorosResponse {
 
     public enum Response {OK, REJECTED_SMALL_RANGE, REJECTED_INVALID_ID, REJECTED_NOT_FOUND}
 
+    private int nodeId;
     private Response thirorosResponse;
-    private List<DistributedNode> distributedNodes;
+    private DistributedNode previousNode;
+
+    public int getNodeId() {
+        return nodeId;
+    }
+
+    public void setNodeId(int nodeId) {
+        this.nodeId = nodeId;
+    }
 
     public Response getThirorosResponse() {
         return thirorosResponse;
@@ -18,12 +26,12 @@ public class ThirorosResponse {
         this.thirorosResponse = thirorosResponse;
     }
 
-    public List<DistributedNode> getDistributedNodes() {
-        return distributedNodes;
+    public DistributedNode getPreviousNode() {
+        return previousNode;
     }
 
-    public void setDistributedNodes(List<DistributedNode> distributedNodes) {
-        this.distributedNodes = distributedNodes;
+    public void setPreviousNode(DistributedNode previousNode) {
+        this.previousNode = previousNode;
     }
 
     @Override
@@ -31,20 +39,22 @@ public class ThirorosResponse {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ThirorosResponse that = (ThirorosResponse) o;
-        return thirorosResponse == that.thirorosResponse &&
-                Objects.equals(distributedNodes, that.distributedNodes);
+        return nodeId == that.nodeId &&
+                thirorosResponse == that.thirorosResponse &&
+                Objects.equals(previousNode, that.previousNode);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(thirorosResponse, distributedNodes);
+        return Objects.hash(nodeId, thirorosResponse, previousNode);
     }
 
     @Override
     public String toString() {
         return "ThirorosResponse{" +
-                "thirorosResponse=" + thirorosResponse +
-                ", distributedNodes=" + distributedNodes +
+                "nodeId=" + nodeId +
+                ", thirorosResponse=" + thirorosResponse +
+                ", previousNode=" + previousNode +
                 '}';
     }
 

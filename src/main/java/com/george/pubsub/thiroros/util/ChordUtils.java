@@ -6,10 +6,10 @@ import java.security.NoSuchAlgorithmException;
 
 public class ChordUtils {
 
-    public static int computeId(DistributedNode distributedNode) throws NoSuchAlgorithmException, UnsupportedEncodingException {
+    public static int computeId(String str) throws NoSuchAlgorithmException, UnsupportedEncodingException {
         final MessageDigest messageDigest;
         messageDigest = MessageDigest.getInstance("SHA-256");
-        byte[] digest = messageDigest.digest(distributedNode.getRemoteAddress().toString().getBytes("UTF-8"));
+        byte[] digest = messageDigest.digest(str.getBytes("UTF-8"));
         int id = bytesToInt(digest);
         return id;
     }

@@ -2,7 +2,7 @@ package launcher;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.george.pubsub.thiroros.Thiroros;
-import com.george.pubsub.thiroros.util.RemoteAddress;
+import com.george.pubsub.util.RemoteAddress;
 
 import java.io.*;
 import java.net.InetSocketAddress;

@@ -3,7 +3,7 @@ package com.george.pubsub.thiroros;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.george.pubsub.thiroros.service.impl.ThirorosImpl;
 import com.george.pubsub.thiroros.util.DistributedNode;
-import com.george.pubsub.thiroros.util.RemoteAddress;
+import com.george.pubsub.util.RemoteAddress;
 
 import java.io.BufferedReader;
 import java.io.IOException;

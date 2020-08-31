@@ -1,5 +1,7 @@
 package com.george.pubsub.thiroros.util;
 
+import com.george.pubsub.util.RemoteAddress;
+
 import java.util.Objects;
 
 public class DistributedNode {

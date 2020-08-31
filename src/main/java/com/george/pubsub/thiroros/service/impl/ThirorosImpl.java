@@ -19,20 +19,25 @@ public class ThirorosImpl implements Thiroros {
         ThirorosResponse thirorosResponse = new ThirorosResponse();
 
         try {
-            int id = ChordUtils.computeId(distributedNode);
+            int id = ChordUtils.computeId(distributedNode.getRemoteAddress().toString());
             distributedNode.setId(id);
+            thirorosResponse.setNodeId(id);
 
             if (distributedNodes.isEmpty()) {
                 distributedNodes.add(distributedNode);
                 thirorosResponse.setThirorosResponse(ThirorosResponse.Response.OK);
-                thirorosResponse.setDistributedNodes(distributedNodes);
+                thirorosResponse.setPreviousNode(null);
             } else {
                 int index = 0;
                 for (DistributedNode node : distributedNodes) {
-                    if (distributedNode.getId() < node.getId()) {
+                    if (distributedNode.getId() <= node.getId()) {
                         break;
                     }
                     index++;
+                }
+                if (distributedNode.getId() == distributedNodes.get(index).getId()) {
+                    thirorosResponse.setThirorosResponse(ThirorosResponse.Response.OK);
+                    return thirorosResponse;
                 }
                 if (!checkRange(index, distributedNode)) {
                     thirorosResponse.setThirorosResponse(ThirorosResponse.Response.REJECTED_SMALL_RANGE);
@@ -44,7 +49,11 @@ public class ThirorosImpl implements Thiroros {
                 } else {
                     distributedNodes.add(index, distributedNode);
                 }
-                thirorosResponse.setDistributedNodes(distributedNodes);
+                if (index == 0) {
+                    thirorosResponse.setPreviousNode(distributedNodes.getLast());
+                } else {
+                    thirorosResponse.setPreviousNode(distributedNodes.get(index - 1));
+                }
             }
             return thirorosResponse;
         } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
