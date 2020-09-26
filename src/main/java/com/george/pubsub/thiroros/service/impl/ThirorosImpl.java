@@ -4,6 +4,8 @@ import com.george.pubsub.thiroros.service.Thiroros;
 import com.george.pubsub.thiroros.util.ChordUtils;
 import com.george.pubsub.thiroros.util.DistributedNode;
 import com.george.pubsub.thiroros.util.ThirorosResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
@@ -12,22 +14,25 @@ import java.util.List;
 
 public class ThirorosImpl implements Thiroros {
 
+    private Logger logger = LoggerFactory.getLogger(ThirorosImpl.class);
     private LinkedList<DistributedNode> distributedNodes = new LinkedList<>();
 
     @Override
     public ThirorosResponse join(DistributedNode distributedNode) {
-        ThirorosResponse thirorosResponse = new ThirorosResponse();
 
+        ThirorosResponse thirorosResponse = new ThirorosResponse();
         try {
             int id = ChordUtils.computeId(distributedNode.getRemoteAddress().toString());
             distributedNode.setId(id);
             thirorosResponse.setNodeId(id);
+            logger.info("got join request from node {}", distributedNode);
 
             if (distributedNodes.isEmpty()) {
                 distributedNodes.add(distributedNode);
                 thirorosResponse.setThirorosResponse(ThirorosResponse.Response.OK);
                 thirorosResponse.setPreviousNode(null);
             } else {
+                // find previous node
                 int index = 0;
                 for (DistributedNode node : distributedNodes) {
                     if (distributedNode.getId() <= node.getId()) {
@@ -37,10 +42,12 @@ public class ThirorosImpl implements Thiroros {
                 }
                 if (distributedNode.getId() == distributedNodes.get(index).getId()) {
                     thirorosResponse.setThirorosResponse(ThirorosResponse.Response.OK);
+                    logger.info("node {} already joined", distributedNode);
                     return thirorosResponse;
                 }
                 if (!checkRange(index, distributedNode)) {
                     thirorosResponse.setThirorosResponse(ThirorosResponse.Response.REJECTED_SMALL_RANGE);
+                    logger.info("node {} rejected [small range]", distributedNode);
                     return thirorosResponse;
                 }
                 thirorosResponse.setThirorosResponse(ThirorosResponse.Response.OK);
@@ -55,9 +62,9 @@ public class ThirorosImpl implements Thiroros {
                     thirorosResponse.setPreviousNode(distributedNodes.get(index - 1));
                 }
             }
-            return thirorosResponse;
+            logger.info("node {} joined chord", distributedNode);
         } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
-            e.printStackTrace();
+            logger.info("node {} join failed, error {}", distributedNode, e.getLocalizedMessage());
             thirorosResponse.setThirorosResponse(ThirorosResponse.Response.REJECTED_INVALID_ID);
         }
         return thirorosResponse;
@@ -65,16 +72,19 @@ public class ThirorosImpl implements Thiroros {
 
     @Override
     public ThirorosResponse leave(DistributedNode distributedNode) {
+        logger.info("got leave request from node {}", distributedNode);
         ThirorosResponse thirorosResponse = new ThirorosResponse();
         int index = 0;
         for (DistributedNode node : distributedNodes) {
             if (distributedNode.getId() == node.getId()) {
                 distributedNodes.remove(index);
                 thirorosResponse.setThirorosResponse(ThirorosResponse.Response.OK);
+                logger.info("node {} removed from chord", distributedNode);
                 return thirorosResponse;
             }
             index++;
         }
+        logger.info("node {} not found", distributedNode);
         thirorosResponse.setThirorosResponse(ThirorosResponse.Response.REJECTED_NOT_FOUND);
         return thirorosResponse;
     }
