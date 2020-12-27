@@ -4,7 +4,7 @@ import java.util.Objects;
 
 public class ThirorosResponse {
 
-    public enum Response {OK, REJECTED_SMALL_RANGE, REJECTED_INVALID_ID, REJECTED_NOT_FOUND}
+    public enum Response {OK, REJECTED_SMALL_RANGE, REJECTED_INVALID_ID, REJECTED_NOT_FOUND, ALREADY_REGISTERED}
 
     private int nodeId;
     private Response thirorosResponse;

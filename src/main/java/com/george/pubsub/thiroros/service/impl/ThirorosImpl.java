@@ -41,7 +41,7 @@ public class ThirorosImpl implements Thiroros {
                     index++;
                 }
                 if (distributedNode.getId() == distributedNodes.get(index).getId()) {
-                    thirorosResponse.setThirorosResponse(ThirorosResponse.Response.OK);
+                    thirorosResponse.setThirorosResponse(ThirorosResponse.Response.ALREADY_REGISTERED);
                     logger.info("node {} already joined", distributedNode);
                     return thirorosResponse;
                 }
